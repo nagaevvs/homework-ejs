@@ -6,7 +6,7 @@
 <div class="view">
     <div class="view__section">
         <img class="view__image" src="../<%=book.fileBook %>" alt="" />
-        <form action="/api/books/<%=book.id %>/upload" method="post" enctype="multipart/form-data">
+        <form action="/update/<%=book.id %>/upload-file" method="post" enctype="multipart/form-data">
             <div>
               <label for="file">Выберете новый файл</label>
               <input type="file" id="books-file" name="books-file" multiple required>
@@ -19,7 +19,7 @@
     <div class="view__section">
        
 
-       <form name="form form-create" class="form-create" action="/api/books/<%=book.id %>" method="post">
+       <form name="form form-create" class="form-create" action="/update/<%=book.id %>" method="post">
         <span class="form__input-container">
             <label class="form__label" for="create-title">
                 Название книги:

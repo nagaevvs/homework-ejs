@@ -27,10 +27,6 @@ class Book {
   }
 }
 
-// const lib = {
-//   books: [],
-// };
-
 //получаем массив всех книг
 router.get("/", (req, res) => {
   const { books } = lib;
@@ -47,7 +43,7 @@ router.get("/:id", (req, res) => {
     res.json(books[idx]);
   } else {
     res.status(404);
-    res.json(`404 | Запись не найдена`);
+    res.json({ errcode: 404, errmsg: "Запись не найдена" });
   }
 });
 
@@ -61,11 +57,10 @@ router.post("/:id/upload", fileMulter.single("books-file"), (req, res) => {
     if (idx !== -1) {
       books[idx].fileBook = path;
       books[idx].fileName = filename;
-
-      res.redirect(`/update/${books[idx].id}`);
+      res.json(books[idx]);
     } else {
       res.status(404);
-      res.json(`404 | Запись не найдена`);
+      res.json({ errcode: 404, errmsg: "Запись не найдена" });
     }
 
     res.json({ path });
@@ -83,27 +78,22 @@ router.get("/:id/download", (req, res) => {
     res.download(path.join(books[idx].fileBook), books[idx].fileName);
   } else {
     res.status(404);
-    res.json(`404 | Запись не найдена`);
+    res.json({ errcode: 404, errmsg: "Запись не найдена" });
   }
 });
 
 //создаем книги и возврашаем ее же вместе с присвоенным id
 router.post("/", (req, res) => {
   const { books } = lib;
-  const { title, description, authors } = req.body;
-  const newBook = new Book(title, description, authors);
+  const { title, description } = req.body;
+  const newBook = new Book(title, description);
   books.push(newBook);
-
-  //res.status(201);
-  //res.json(newBook);
-  res.redirect("/");
-
-  //console.log(req);
-  //console.log(req.body);
+  res.status(201);
+  res.json(newBook);
 });
 
 //редактируем объект книги, если запись не найдено вернем Code: 404
-router.post("/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   const { books } = lib;
   const { title, description, authors } = req.body;
   const { id } = req.params;
@@ -115,11 +105,10 @@ router.post("/:id", (req, res) => {
       description,
       authors,
     };
-    //res.json(books[idx]);
-    res.redirect(`/view/${books[idx].id}`);
+    res.json(books[idx]);
   } else {
     res.status(404);
-    res.json(`404 | Запись не найдена`);
+    res.json({ errcode: 404, errmsg: "Запись не найдена" });
   }
 });
 
@@ -132,7 +121,7 @@ router.delete("/:id", (req, res) => {
     books.splice(idx, 1);
   } else {
     res.status(404);
-    res.json(`404 | Запись не найдена`);
+    res.json({ errcode: 404, errmsg: "Запись не найдена" });
   }
 });
 
