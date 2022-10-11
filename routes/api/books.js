@@ -3,6 +3,7 @@ const router = express.Router();
 const { v4: uuid } = require("uuid");
 const fileMulter = require("../../middleware/file");
 const path = require("path");
+const lib = require("../../context/lib");
 
 class Book {
   constructor(
@@ -26,9 +27,9 @@ class Book {
   }
 }
 
-const lib = {
-  books: [],
-};
+// const lib = {
+//   books: [],
+// };
 
 //получаем массив всех книг
 router.get("/", (req, res) => {
@@ -56,10 +57,12 @@ router.post("/:id/upload", fileMulter.single("books-file"), (req, res) => {
   const { id } = req.params;
   const idx = books.findIndex((el) => el.id === id);
   if (req.file) {
-    const { path } = req.file;
+    const { path, filename } = req.file;
     if (idx !== -1) {
       books[idx].fileBook = path;
-      res.json(books[idx]);
+      books[idx].fileName = filename;
+
+      res.redirect(`/update/${books[idx].id}`);
     } else {
       res.status(404);
       res.json(`404 | Запись не найдена`);
@@ -77,7 +80,7 @@ router.get("/:id/download", (req, res) => {
   const idx = books.findIndex((el) => el.id === id);
 
   if (idx !== -1) {
-    res.download(path.join(books[idx].fileBook));
+    res.download(path.join(books[idx].fileBook), books[idx].fileName);
   } else {
     res.status(404);
     res.json(`404 | Запись не найдена`);
@@ -87,17 +90,22 @@ router.get("/:id/download", (req, res) => {
 //создаем книги и возврашаем ее же вместе с присвоенным id
 router.post("/", (req, res) => {
   const { books } = lib;
-  const { title, description } = req.body;
-  const newBook = new Book(title, description);
+  const { title, description, authors } = req.body;
+  const newBook = new Book(title, description, authors);
   books.push(newBook);
-  res.status(201);
-  res.json(newBook);
+
+  //res.status(201);
+  //res.json(newBook);
+  res.redirect("/");
+
+  //console.log(req);
+  //console.log(req.body);
 });
 
 //редактируем объект книги, если запись не найдено вернем Code: 404
-router.put("/:id", (req, res) => {
+router.post("/:id", (req, res) => {
   const { books } = lib;
-  const { title, description } = req.body;
+  const { title, description, authors } = req.body;
   const { id } = req.params;
   const idx = books.findIndex((el) => el.id === id);
   if (idx !== -1) {
@@ -105,8 +113,10 @@ router.put("/:id", (req, res) => {
       ...books[idx],
       title,
       description,
+      authors,
     };
-    res.json(books[idx]);
+    //res.json(books[idx]);
+    res.redirect(`/view/${books[idx].id}`);
   } else {
     res.status(404);
     res.json(`404 | Запись не найдена`);

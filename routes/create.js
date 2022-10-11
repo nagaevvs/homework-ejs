@@ -4,7 +4,7 @@ const lib = require("../context/lib");
 router.get("/", (req, res) => {
   const { url } = req;
   // res.json({ url });
-  res.render("index", {
+  res.render("create", {
     lib: lib.books,
   });
 });
